@@ -1,0 +1,79 @@
+// prisma/schema.prisma
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  userId    Int      @id @default(autoincrement()) @map("userId")
+  email     String?   @unique @map("email")
+  password  String?   @map("password")
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+  name      String   @map("name")
+  client_id String?   @map("client_id")
+  permission Permission @default(User) @map("permission")
+  userInfos UserInfos?
+  resume Resume[]
+  userHistories UserHistories[]
+  @@map("Users")
+}
+
+enum Permission { 
+  User 
+  Admin 
+  }
+
+model Resume {
+  resumeId  Int      @id @default(autoincrement()) @map("resumeId")
+  userId    Int      @map("userId")
+  title     String   @map("title")
+  content   String   @map("content") @db.Text
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+  status    Status   @default(APPLY)
+  user Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  @@map("resume")
+}
+
+enum Status {
+  APPLY
+  DROP
+  PASS 
+  INTERVIEW1
+  INTERVIEW2
+  FINAL_PASS
+}
+
+model UserInfos {
+  userInfoId Int @id @default(autoincrement()) @map("userInfoId")
+  userId Int @unique @map("userId")
+  name String @map("name")
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  user Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  @@map("UserInfos")
+}
+
+model UserHistories {
+  userHistoryId String   @id @default(uuid()) @map("userHistoryId")
+  userId        Int      @map("userId") // 사용자(Users) 테이블을 참조하는 외래키
+  changedField  String   @map("changedField") // 변경된 필드명
+  oldValue      String?  @map("oldValue") // 변경 전 값
+  newValue      String   @map("newValue") // 변경 후 값
+  changedAt     DateTime @default(now()) @map("changedAt")
+
+  // Users 테이블과 관계를 설정합니다.
+  user Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@map("UserHistories")
+}
