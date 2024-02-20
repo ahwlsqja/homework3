@@ -19,6 +19,8 @@ model Users {
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
   name      String   @map("name")
+  emailTokens String? @map("emailTokens")
+  verifiedstatus User_Status  @map("verifiedstatus")
   client_id String?   @map("client_id")
   permission Permission @default(User) @map("permission")
   userInfos UserInfos?
@@ -76,4 +78,9 @@ model UserHistories {
   user Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   @@map("UserHistories")
+}
+
+enum User_Status {
+  pass
+  nonpass
 }
