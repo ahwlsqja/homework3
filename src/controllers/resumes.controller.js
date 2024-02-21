@@ -1,7 +1,8 @@
-import { ResumesService } from "../services/resumes.service.js";
 
 export class ResumesController {
-    resumesService = new ResumesService();// 인스턴스 할당
+    constructor(resumesService){
+        this.resumesService = resumesService; 
+    }
     // 게시글 조회 API
     getResumes = async (req, res, next) => {
         try{

@@ -1,7 +1,8 @@
-import { UsersService } from '../services/users.service.js';
-
 export class Userscontroller {
-    usersService = new UsersService();
+    constructor(usersService){
+        this.usersService = usersService;
+    }
+
 
     // 유저 생성 API
     signUp = async (req, res, next) => {
@@ -50,8 +51,10 @@ export class Userscontroller {
     refreshToken = async (req, res, next) => {
         try{
             const { refreshToken } = req.cookies;
-            const newToken = await this.usersService.refreshToken(refreshToken);
-            res.cookie('authorization', `Bearer ${newToken}`)
+            const tokens = await this.usersService.refreshToken(refreshToken);
+            res.cookie('authorization', `Bearer ${tokens.newToken}`)
+            res.cookie('refreshToken', `Bearer ${tokens.newRefreshToken}`)
+
             return res.status(200).json({ message: '새로운 토큰 재발급에 성공했습니다.'});
         } catch(err){
             next(err);

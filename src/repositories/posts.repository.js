@@ -1,12 +1,14 @@
-import { prisma } from "../utils/prisma/index.js";
 import { Prisma } from '@prisma/client';
 
 export class ResumeRepository {
+    constructor(prisma){
+        this.prisma = prisma;
+    }
     findAllResumes = async(orderKey = 'createdAt', orderValue='desc') => {
         // ORM인 Prisma에서 Posts 모델의 findMany 메서드를 사용해 데이터를 요청합니다.
         let orderByCondition = {};
         orderByCondition[orderKey] = orderValue;
-        const resumes = await prisma.resume.findMany({
+        const resumes = await this.prisma.resume.findMany({
             include :{
                 user: {
                     select: {
@@ -23,7 +25,7 @@ export class ResumeRepository {
 
     findresumeById = async (resumeId) => {
         // ORM인 Prisma에서 Posts 모델의 findUnique 메서드를 사용해 데이터 요청합니다.
-        const resumes = await prisma.resume.findUnique({
+        const resumes = await this.prisma.resume.findUnique({
             where: { resumeId: +resumeId },
             include: {
                 user: true,
@@ -35,7 +37,7 @@ export class ResumeRepository {
 
     createResume = async(userId, title, content ) => {
         // ORM인 Prisma에서 Posts 모델의 create 메서드를 사용해 데이터르 요청합니다.
-        const createdResume = await prisma.resume.create({
+        const createdResume = await this.prisma.resume.create({
             data: {
                 userId: +userId,
                 title, 
@@ -75,7 +77,7 @@ export class ResumeRepository {
     // 일반 이력서 삭제
     deleteResume = async (resumeId) => {
         // ORM인 Prisma에서 posts 모델의 delete 메서드를 사용해 데이터를 삭제합니다.
-        const deletedResume = await prisma.resume.delete({
+        const deletedResume = await this.prisma.resume.delete({
             where: {
                 resumeId: +resumeId,
             },
@@ -88,7 +90,7 @@ export class ResumeRepository {
 
     // 관리자 이력서 조회
     getAllResumes = async() => {
-        return await prisma.resume.findMany();
+        return await this.prisma.resume.findMany();
     }
 
 
@@ -96,7 +98,7 @@ export class ResumeRepository {
     
     // repositories/resumeRepo.js
     updateResumeWithHistory = async (resumeId, updatedData, oldResume) => {
-    await prisma.$transaction(async(tx) => {
+    await this.prisma.$transaction(async(tx) => {
         await tx.resume.update({
             data: {
                 ...updatedData
@@ -124,7 +126,7 @@ export class ResumeRepository {
 
     // 관리자 이력서 삭제 
     deleteAdminResume = async (resumeId) => {
-        await prisma.resume.delete({
+        await this.prisma.resume.delete({
             where: { resumeId: +resumeId }
         });
     };

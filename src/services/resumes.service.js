@@ -1,15 +1,22 @@
-import { ResumeRepository } from '../repositories/posts.repository'
-
+import { sendTodayData } from "../middlewares/slackBot.js"
 
 export class ResumesService {
-    resumeRepository = new ResumeRepository();
-
+    constructor(resumeRepository){
+        this.resumeRepository = resumeRepository
+    }
     // 이력서 전체 조회
     findAllResumes = async(orderKey, orderValue) => {
+        await new Promise((resolve) => setTimeout(resolve, 2000)); 
         // 레포에 데이터 요청
         const resumes = await this.resumeRepository.findAllResumes(orderKey, orderValue);
 
         // 데이터 가공
+        try{
+            await sendTodayData();
+        } catch(err){
+            next(err);
+        }
+
         return resumes.map((resume) => {
             return {
                 resumeId: resume.resumeId,
@@ -22,11 +29,17 @@ export class ResumesService {
             }
         });
     };
-
     // 이력서 하나 조회 
     findresumeById = async (resumeId) => {
         // 레포에 게시물 하나 요청
+        await new Promise((resolve) => setTimeout(resolve, 2000)); 
+
         const resume = await this.resumeRepository.findresumeById(resumeId);
+        try{
+            await sendTodayData();
+        } catch(err){
+            next(err);
+        }
         return {
             resumeId: resume.resumeId,
             userId: resume.userId,
@@ -40,11 +53,20 @@ export class ResumesService {
 
     // 이력서 생성
     createResume = async(userId, title, content) => {
+
+        await new Promise((resolve) => setTimeout(resolve, 2000)); 
+
         const createdResume = await this.resumeRepository.createResume(
             userId,
             title,
             content,
         );
+        
+        try{
+            await sendTodayData();
+        } catch(err){
+            next(err);
+        }
 
         return{
             resumeId: createdResume.resumeId,
@@ -58,6 +80,9 @@ export class ResumesService {
 
     // 이력서 수정
     updateResume = async (resumeId, userId, updatedData) => {
+
+        await new Promise((resolve) => setTimeout(resolve, 2000)); 
+
         const resume = await this.resumeRepository.findresumeById(resumeId);
 
         if(!resume){
@@ -69,11 +94,19 @@ export class ResumesService {
         }
 
         await this.resumeRepository.updateResume(resumeId, updatedData, userId)
+        try{
+            await sendTodayData();
+        } catch(err){
+            next(err);
+        }
 }
 
 
     // 이력서 삭제
     deleteResume = async (resumeId) => {
+
+        await new Promise((resolve) => setTimeout(resolve, 2000)); 
+
         const resume = await this.resumeRepository.findresumeById(resumeId);
         if(!resume) throw new Error("존재하지 않는 이력서입니다.");
         const resumeInfo = {
@@ -86,12 +119,22 @@ export class ResumesService {
         };
 
         await this.resumeRepository.deleteResume(resumeId);
-
+        try{
+            await sendTodayData();
+        } catch(err){
+            next(err);
+        }
         return resumeInfo;
-    }
+    }   
 
     // 관리자 이력서 조회 
     getAllResumes = async () => {
+        await new Promise((resolve) => setTimeout(resolve, 2000)); 
+        try{
+            await sendTodayData();
+        } catch(err){
+            next(err);
+        }
         return await this.resumeRepository.getAllResumes();
     }
 
@@ -102,19 +145,28 @@ export class ResumesService {
     // services/resumeService.js
 
     updateAdminResume = async (resumeId, updatedData) => {
+        await new Promise((resolve) => setTimeout(resolve, 2000)); 
+
         const resume = await this.resumeRepository.findresumeById(resumeId);
 
         if(!resume){
         throw new Error("이력서 조회에 실패하였습니다.");
         }
-
+        
         await this.resumeRepository.updateResumeWithHistory(resumeId, updatedData, resume);
+        try{
+            await sendTodayData();
+        } catch(err){
+            next(err);
+        }
 }
 
 
     // 관리자 이력서 삭제
 
     deleteAdminResume = async (resumeId) => {
+        await new Promise((resolve) => setTimeout(resolve, 2000)); 
+
         const resume = await this.resumeRepository.findresumeById(resumeId);
 
         if(!resume) {
@@ -122,5 +174,10 @@ export class ResumesService {
         }
 
         await this.resumeRepository.deleteAdminResume(resumeId);
+        try{
+            await sendTodayData();
+        } catch(err){
+            next(err);
+        }
     }
 }

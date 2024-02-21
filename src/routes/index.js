@@ -5,6 +5,6 @@ import UsersRouter from './users.router.js'
 const router = express.Router();
 
 router.use('/resumes/', ResumeRouter);
-router.use('/users/',UsersRouter )
+router.use('/users/', UsersRouter )
 
 export default router;
